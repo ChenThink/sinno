@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	<!-- RequiredAnnotationBeanPostProcessor是一个Spring bean后处理器 -->
+	<bean
+		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor"></bean>
+	<!-- AutowiredAnnotationBeanPostProcessor是一个Spring bean后处理器 -->
+	<bean
+		class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"></bean>
+	<bean id="sequenceGenerator" class="com.clz619.spring.SequenceGenerator">
+		<property name="prefix">
+			<value>30</value>
+		</property>
+		<property name="suffix">
+			<value>A</value>
+		</property>
+		<!-- 属性value为 <value> 的简写 -->
+		<property name="initial" value="10000" />
+	</bean>
+
+	<bean id="sequenceGenerator1" class="com.clz619.spring.SequenceGenerator">
+		<constructor-arg value="30" />
+		<constructor-arg value="10000" />
+		<property name="suffix" value="A" />
+	</bean>
+	<!-- 为构造函数 参数指定type -->
+	<bean id="sequenceGenerator2" class="com.clz619.spring.SequenceGenerator">
+		<constructor-arg type="java.lang.String" value="30" />
+		<constructor-arg type="int" value="10000" />
+		<property name="suffix" value="A" />
+	</bean>
+	<!-- 为参数指定索引 -->
+	<bean id="sequenceGenerator3" class="com.clz619.spring.SequenceGenerator">
+		<constructor-arg type="java.lang.String" index="1"
+			value="A" />
+		<constructor-arg type="int" index="0" value="10000" />
+		<property name="prefix" value="30" />
+	</bean>
+	<bean id="aaa" class="com.clz619.spring.Battery">
+		<!-- 通过set方法传参 -->
+		<property name="name" value="AAA" />
+		<property name="price" value="2.5" />
+		<property name="rechargeable" value="true" />
+	</bean>
+
+	<bean id="cdrw" class="com.clz619.spring.Disc">
+		<!-- 通过构造方法传参 -->
+		<constructor-arg value="CD-RW" />
+		<constructor-arg value="1.5" />
+		<property name="capacity" value="700" />
+	</bean>
+
+	<bean id="datePrefixGenerator1" class="com.clz619.spring.DatePrefixGenerator">
+		<property name="pattern" value="yyyyMMdd" />
+	</bean>
+	<bean id="datePrefixGenerator2" class="com.clz619.spring.DatePrefixGenerator">
+		<property name="pattern" value="yyyyMMdd hhmmss" />
+	</bean>
+	<bean id="sequenceGenerator4" class="com.clz619.spring.SequenceGenerator">
+		<constructor-arg>
+			<bean class="com.clz619.spring.DatePrefixGenerator">
+				<property name="pattern" value="yyyyMMdd"></property>
+			</bean>
+		</constructor-arg>
+
+		<!-- <constructor-arg> <ref local="datePrefixGenerator2"/> </constructor-arg> -->
+	</bean>
+	<bean id="sequenceGenerator5" class="com.clz619.spring.SequenceGenerator">
+		<!-- <property name="prefixGenerator"> <bean class="com.clz619.spring.DatePrefixGenerator"> 
+			<property name="pattern" value="yyyyMMdd"></property> </bean> </property> -->
+
+		<property name="prefixGenerator">
+			<ref bean="datePrefixGenerator2" />
+		</property>
+	</bean>
+
+	<!--为集合元素指定数据类型 -->
+	<bean id="sequenceGenerator6" class="com.clz619.spring.SequenceGenerator">
+		<property name="list">
+			<list>
+				<!-- type指定元素类型 -->
+				<value type="int">5</value>
+				<value type="int">10</value>
+				<value type="int">20</value>
+			</list>
+		</property>
+		<!-- <property name="list"> value-type指定集合所有元素类型 <list value-type="int"> 
+			<value>5</value> <value>10</value> <value>20</value> </list> </property> -->
+	</bean>
+
+	<!-- 自定义商品折扣类 类似修饰模式 -->
+	<bean id="aaadiscount" class="com.clz619.spring.DiscountFactoryBean">
+		<property name="product">
+			<ref bean="aaa"></ref>
+		</property>
+		<property name="discount" value="0.2" />
+	</bean>
+
+	<!-- 调用实例工厂方法创建Bean。Bean实例在factory-bean属性中指定，而工厂方法应该在factory-method属性中指定 -->
+	<bean id="productCreator" class="com.clz619.spring.ProductCreator">
+		<property name="products">
+			<map>
+				<entry key="aaa">
+					<ref bean="aaa" />
+				</entry>
+				<entry key="cdrw">
+					<ref bean="cdrw" />
+				</entry>
+				<entry key="dvdrw">
+					<bean class="com.clz619.spring.Disc">
+						<property name="name" value="DVD-RW"></property>
+						<property name="price">
+							<value>3.0</value>
+						</property>
+					</bean>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="aaa1" factory-bean="productCreator" factory-method="createProduct">
+		<constructor-arg value="aaa" />
+	</bean>
+
+	<bean id="dvdrw" factory-bean="productCreator" factory-method="createProduct">
+		<constructor-arg value="dvdrw" />
+	</bean>
+
+	<bean id="shoppingCart" class="com.clz619.spring.ShoppingCart" scope="prototype"></bean>
+	
+</beans>
